@@ -1,1 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Web App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: black; 
+            color: white;
+        }
+
+        #chatbox {
+            width: 90vw;
+            max-width: 600px;
+            background-color: #1e1e1e; 
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4); 
+            border-radius: 12px; 
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 80vh; 
+            border: 1px solid #333; 
+        }
+
+        #header {
+            background-color: #333333;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            border-bottom: 1px solid #444;
+        }
+
+        #messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #252525; 
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+
+        .timestamp {
+            font-size: 0.75em;
+            color: white; 
+            margin-top: 2px;
+        }
+
+        .user {
+            align-self: flex-end;
+            background-color: #ff0000;
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            max-width: 75%;
+            text-align: right;
+            margin-left: auto;
+        }
+
+        .bot {
+            align-self: flex-start;
+            background-color: #444444; 
+            color: #ddd;
+            padding: 8px;
+            border-radius: 8px;
+            max-width: 75%;
+            text-align: left;
+            margin-right: auto;
+        }
+
+        .typing-indicator {
+            font-style: italic;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        #input-section {
+            display: flex;
+            border-top: 1px solid #444;
+            padding: 8px;
+            background-color: #333; 
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            outline: none;
+            font-size: 16px;
+            background-color: #555; 
+            color: white;
+            box-shadow: inset 0px 2px 5px rgba(0, 0, 0, 0.3);
+            margin-right: 8px;
+        }
+
+        #send-btn {
+            padding: 10px 15px;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        #send-btn:hover {
+            background-color: #0056b3;
+        }
+
+        #messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #messages::-webkit-scrollbar-thumb {
+            background-color: #555;
+            border-radius: 4px;
+        }
+
+        #social-links {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        #social-links a {
+            color: #fff;
+            font-size: 12px;
+            text-decoration: none;
+            background-color: #333;
+            padding: 6px;
+            margin: 4px 0;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        #social-links a:hover {
+            background-color: #ff0000;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            #chatbox {
+                width: 95vw;
+                max-width: 100%;
+                height: 75vh;
+            }
+
+            #header {
+                font-size: 16px;
+                padding: 8px;
+            }
+
+            #user-input {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            #send-btn {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            #social-links a {
+                font-size: 10px;
+                padding: 4px;
+                margin: 3px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #chatbox {
+                width: 100vw;
+                height: 70vh;
+            }
+
+            #messages {
+                padding: 10px;
+            }
+
+            #user-input {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            #send-btn {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+
+            #social-links {
+                bottom: 10px;
+                right: 10px;
+            }
+
+            #social-links a {
+                font-size: 8px;
+                padding: 3px;
+                margin: 2px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="chatbox">
+        <div id="header">AI Chatbot</div>
+        <div id="messages"></div>
+        <div id="input-section">
+            <input type="text" id="user-input" placeholder="Type your message here" />
+            <button id="send-btn" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <div id="social-links">
+        <a href="https://www.linkedin.com/in/nived-ck" target="_blank" id="linkedin-link">LinkedIn</a>
+        <a href="https://github.com/Nivedck/Nivedck" target="_blank" id="github-link">GitHub</a>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const userInput = document.getElementById("user-input");
+
+            userInput.addEventListener("keydown", function (event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    sendMessage();
+                }
+            });
+        });
+
+        async function sendMessage() {
+            const userInput = document.getElementById("user-input").value;
+            if (userInput === "") return;
+
+            const messages = document.getElementById("messages");
+
+            const userMessageDiv = document.createElement("div");
+            userMessageDiv.className = "message user";
+            userMessageDiv.innerText = userInput;
+            const userTimestamp = document.createElement("div");
+            userTimestamp.className = "timestamp";
+            userTimestamp.innerText = new Date().toLocaleTimeString();
+            userMessageDiv.appendChild(userTimestamp);
+            messages.appendChild(userMessageDiv);
+
+            document.getElementById("user-input").value = "";
+            messages.scrollTop = messages.scrollHeight;
+
+            const typingIndicator = document.createElement("div");
+            typingIndicator.className = "typing-indicator";
+            typingIndicator.innerText = "........";
+            messages.appendChild(typingIndicator);
+
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: userInput })
+                });
+
+                typingIndicator.remove();
+
+                if (!response.ok) throw new Error("Network response was not ok");
+
+                const data = await response.json();
+
+                const botMessageDiv = document.createElement("div");
+                botMessageDiv.className = "message bot";
+                botMessageDiv.innerText = data.response;
+                const botTimestamp = document.createElement("div");
+                botTimestamp.className = "timestamp";
+                botTimestamp.innerText = new Date().toLocaleTimeString();
+                botMessageDiv.appendChild(botTimestamp);
+                messages.appendChild(botMessageDiv);
+            } catch (error) {
+                typingIndicator.remove();
+
+                const errorDiv = document.createElement("div");
+                errorDiv.className = "message bot";
+                errorDiv.innerText = "Error: Could not connect to server.";
+                messages.appendChild(errorDiv);
+            }
+
+            messages.scrollTop = messages.scrollHeight;
+        }
+    </script>
+</body>
+</html>
 
